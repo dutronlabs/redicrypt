@@ -55,17 +55,15 @@ def getencrypted(name, key_path=None, ivr_path=None, overredis=None):
     return aes.decrypt(cipher)
 
 
-def test_availability(overredis=None):
-    test = loadconfiguration(overredis)
+def test_availability(host=None):
+    test = loadconfiguration(host)
     return True if test is not None else False
 
 
-def loadconfiguration(override=None):
+def loadconfiguration(host=None):
     try:
-        if override is not None:
-            return redis.StrictRedis(host=override)
-        else:
-            url = os.environ['REDIS_ENDPOINT']
-            return redis.StrictRedis(host=url)
+        if host is None:
+            host = os.environ['REDIS_ENDPOINT']
+            return redis.StrictRedis(host=host)
     except Exception, e:
         raise e

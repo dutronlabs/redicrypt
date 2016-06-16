@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name="redicrypt",
-    version="0.0.1",
+    version="0.0.2",
     author="Chris Dutra",
     author_email="cdutra@apprenda.com",
     description="Python-based cryptography package for redis.",
