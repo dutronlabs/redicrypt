@@ -4,9 +4,20 @@ import string
 import redis
 import os
 
+DEFAULT_IV_PATH = './ivr'
+DEFAULT_KEY_PATH = './key'
 
-def initialize_encryption(key_path, ivr_path):
+
+# utility function used across all methods here to make sure defaults are read if no path is specified
+def get_paths(key, ivr):
+    _key = DEFAULT_KEY_PATH if key is None else key
+    _ivr = DEFAULT_IV_PATH if ivr is None else ivr
+    return _key, _ivr
+
+
+def initialize_encryption(key_path=None, ivr_path=None):
     """ This function (re)generates the keys we'll use for encryption and stores them on the file system."""
+    key_path, ivr_path = get_paths(key_path, ivr_path)
     # We are using w+ here because during initialization, we are absolutely going to want to truncate it
     # and write a new key.
     with open(key_path, "w+") as key:
@@ -16,6 +27,7 @@ def initialize_encryption(key_path, ivr_path):
         ivr.write(''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(16)))
 
 
+# private method
 def get_hash(key_path, ivr_path):
     """ This is a utility function to grab the values needed to produce the AES key"""
     with open(key_path, "r+") as key_file:
@@ -27,6 +39,7 @@ def get_hash(key_path, ivr_path):
 
 def setencrypted(name, value, key_path=None, ivr_path=None, overredis=None):
     """ This sets a value encrypted in redis """
+    key_path, ivr_path = get_paths(key_path, ivr_path)
     aes = get_hash(key_path, ivr_path)
     ciphertext = aes.encrypt(value)
     r = overredis if overredis is not None else loadconfiguration()
@@ -35,10 +48,16 @@ def setencrypted(name, value, key_path=None, ivr_path=None, overredis=None):
 
 def getencrypted(name, key_path=None, ivr_path=None, overredis=None):
     """ This gets a value that is encrypted in redis."""
+    key_path, ivr_path = get_paths(key_path, ivr_path)
     r = overredis if overredis is not None else loadconfiguration()
     cipher = r.get(name)
     aes = get_hash(key_path, ivr_path)
     return aes.decrypt(cipher)
+
+
+def test_availability(overredis=None):
+    test = loadconfiguration(overredis)
+    return True if test is not None else False
 
 
 def loadconfiguration(override=None):

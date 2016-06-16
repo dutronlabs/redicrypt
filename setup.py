@@ -13,6 +13,8 @@ setup(
     license="MIT",
     keywords="redis data cryptography",
     url="http://github.com/dutronlabs/redicrypt",
+    packages=['redicrypt'],
+    install_requires=['pycrypto'],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",
