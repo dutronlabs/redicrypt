@@ -37,7 +37,7 @@ def get_hash(key_path, ivr_path):
     return AES.new(key, AES.MODE_CFB, ivr)
 
 
-def setencrypted(name, value, key_path=None, ivr_path=None, overredis=None):
+def set(name, value, key_path=None, ivr_path=None, overredis=None):
     """ This sets a value encrypted in redis """
     key_path, ivr_path = get_paths(key_path, ivr_path)
     aes = get_hash(key_path, ivr_path)
@@ -46,13 +46,31 @@ def setencrypted(name, value, key_path=None, ivr_path=None, overredis=None):
     r.set(name, ciphertext)
 
 
-def getencrypted(name, key_path=None, ivr_path=None, overredis=None):
+def get(name, key_path=None, ivr_path=None, overredis=None):
     """ This gets a value that is encrypted in redis."""
     key_path, ivr_path = get_paths(key_path, ivr_path)
     r = overredis if overredis is not None else loadconfiguration()
     cipher = r.get(name)
     aes = get_hash(key_path, ivr_path)
     return aes.decrypt(cipher)
+
+
+def getrange(name, start, end, key_path=None, ivr_path=None, overredis=None):
+    # this requires a get, and then the range is returned.
+    key_path, ivr_path = get_paths(key_path, ivr_path)
+    r = overredis if overredis is not None else loadconfiguration()
+    encrypted = r.get(name)
+    aes = get_hash(key_path, ivr_path)
+    decrypted = aes.decrypt(encrypted)
+    return decrypted[start:end]
+
+
+def hget(name, field, key_path=None, ivr_path=None, overredis=None):
+    key_path, ivr_path = get_paths(key_path, ivr_path)
+    r = overredis if overredis is not None else loadconfiguration()
+    encrypted = r.hget(name, field)
+    aes = get_hash(key_path, ivr_path)
+    return aes.decrypt(encrypted)
 
 
 def test_availability(host=None):
