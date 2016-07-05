@@ -52,7 +52,7 @@ def get(name, key_path=None, ivr_path=None, overredis=None):
         key_path, ivr_path = get_paths(key_path, ivr_path)
         r = overredis if overredis is not None else loadconfiguration()
         cipher = r.get(name)
-        if cipher.__len__ == 0:
+        if cipher is None:
             return ValueError("No value exists for given key.")
         aes = get_hash(key_path, ivr_path)
         return aes.decrypt(cipher)
