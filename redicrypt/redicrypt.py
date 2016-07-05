@@ -79,7 +79,7 @@ def hget(name, field, key_path=None, ivr_path=None, overredis=None):
 
 
 def test_availability(host=None):
-    test = loadconfiguration(host)
+    test = loadconfiguration(host=host)
     return True if test is not None else False
 
 
