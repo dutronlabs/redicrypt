@@ -1,7 +1,7 @@
 from setuptools import setup
 setup(
     name="redicrypt",
-    version="0.0.6",
+    version="0.0.7",
     author="Chris Dutra",
     author_email="cdutra@apprenda.com",
     description="Python-based cryptography package for redis.",

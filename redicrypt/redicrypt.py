@@ -87,9 +87,10 @@ def loadconfiguration(host=None, password=None):
     try:
         if host is None:
             host = os.environ['REDIS_ENDPOINT']
-        if password is None:
+        if password is None and os.environ.get['REDIS_PW'] is None:
             # check to see if default pw is loaded, but don't throw if None
-            password = os.environ.get['REDIS_PW']
+            return redis.StrictRedis(host=host)
+        password = password or os.environ.get['REDIS_PW']
         return redis.StrictRedis(host=host, password=password)
     except Exception, e:
         raise e
