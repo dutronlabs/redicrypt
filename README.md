@@ -8,4 +8,4 @@ redicrypt is a python-based client that encrypts data in your program before sto
 
 ## Acknowlegements
 
-This work is inspired based on the crypt project, by Kelsey Hightower. [ Link to Crypt ](http://xordataexchange.github.io/crypt/)
+This work is inspired based on the crypt project, by XOR Data Exchange. [ Link to Crypt ](http://xordataexchange.github.io/crypt/)
