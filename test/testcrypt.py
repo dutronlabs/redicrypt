@@ -7,7 +7,6 @@ import os
 
 
 class Testcrypt(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.keypath = "./key"
@@ -27,7 +26,8 @@ class Testcrypt(unittest.TestCase):
         cls.conns = [redicrypt.loadconfiguration(host=cls.redis_host, port=int(cls.redis_default_port)),
                      redicrypt.loadconfiguration(host=cls.redis_host, port=int(cls.redis_dyn_port)),
                      redicrypt.loadconfiguration(host=cls.redis_host, port=int(cls.redis_fx_port)),
-                     redicrypt.loadconfiguration(host=cls.redis_host, port=int(cls.redis_pw_port), password=cls.password)]
+                     redicrypt.loadconfiguration(host=cls.redis_host, port=int(cls.redis_pw_port),
+                                                 password=cls.password)]
 
     def setUp(self):
         redicrypt.initialize_encryption(key_path=self.keypath, ivr_path=self.ivpath)
@@ -50,9 +50,8 @@ class Testcrypt(unittest.TestCase):
         return
 
     def test_loadconfiguration_with_pw(self):
-        # error is raised when auth isn't set up
-        #self.assertRaises(ResponseError, lambda: redicrypt.loadconfiguration(host=self.redis_host, port=int(self.redis_default_port), password=self.password))
-        self.assertIsNotNone(redicrypt.loadconfiguration(host=self.redis_host, port=int(self.redis_pw_port), password=self.password))
+        self.assertIsNotNone(
+            redicrypt.loadconfiguration(host=self.redis_host, port=int(self.redis_pw_port), password=self.password))
         return
 
     def test_get(self):
