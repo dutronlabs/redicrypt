@@ -53,16 +53,13 @@ def set(name, value, key_path=None, ivr_path=None, overredis=None):
 
 def get(name, key_path=None, ivr_path=None, overredis=None, redis_conn=None):
     """ This gets a value that is encrypted in redis."""
-    try:
-        key_path, ivr_path = get_paths(key_path, ivr_path)
-        r = overredis if overredis is not None else loadconfiguration(host=redis_conn['host'], password=redis_conn['password'])
-        cipher = r.get(name)
-        if cipher is None:
-            return None
-        aes = get_hash(key_path, ivr_path)
-        return aes.decrypt(cipher)
-    except TypeError, e:
-        raise "Error during decryption, no value exists at key."
+    key_path, ivr_path = get_paths(key_path, ivr_path)
+    r = overredis if overredis is not None else loadconfiguration(host=redis_conn['host'], password=redis_conn['password'])
+    cipher = r.get(name)
+    if cipher is None:
+        return None
+    aes = get_hash(key_path, ivr_path)
+    return aes.decrypt(cipher)
 
 
 def getrange(name, start, end, key_path=None, ivr_path=None, overredis=None):
