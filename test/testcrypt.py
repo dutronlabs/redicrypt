@@ -1,7 +1,4 @@
 import unittest
-
-from redis import ResponseError
-
 from redicrypt import redicrypt
 import os
 

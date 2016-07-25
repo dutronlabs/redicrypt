@@ -42,24 +42,30 @@ def get_hash(key_path, ivr_path):
     return AES.new(key, AES.MODE_CFB, ivr)
 
 
-def set(name, value, key_path=None, ivr_path=None, overredis=None):
+def set(name, value, key_path=None, ivr_path=None, overredis=None, redis_conn=None):
     """ This sets a value encrypted in redis """
     key_path, ivr_path = get_paths(key_path, ivr_path)
     aes = get_hash(key_path, ivr_path)
     ciphertext = aes.encrypt(value)
-    r = overredis if overredis is not None else loadconfiguration()
+    r = overredis if overredis is not None else loadconfiguration(redis_conn)
     r.set(name, ciphertext)
 
 
 def get(name, key_path=None, ivr_path=None, overredis=None, redis_conn=None):
     """ This gets a value that is encrypted in redis."""
     key_path, ivr_path = get_paths(key_path, ivr_path)
-    r = overredis if overredis is not None else loadconfiguration(host=redis_conn['host'], password=redis_conn['password'])
+    r = overredis if overredis is not None else loadconfiguration(redis_conn)
     cipher = r.get(name)
     if cipher is None:
         return None
     aes = get_hash(key_path, ivr_path)
     return aes.decrypt(cipher)
+
+
+def append(name, value, key_path=None, ivr_path=None, overredis=None):
+    val = get(name, key_path, ivr_path, overredis, None)
+    val += value
+    set(name, value, key_path, ivr_path, overredis)
 
 
 def getrange(name, start, end, key_path=None, ivr_path=None, overredis=None):
@@ -85,15 +91,21 @@ def test_availability(host=None, password=None):
     return True if test is not None else False
 
 
-def loadconfiguration(host=None, port=None, password=None):
+def loadconfiguration(redis_conn=None):
     try:
-        if host is None:
-            host = os.environ['REDIS_ENDPOINT']
-        _port = int(os.environ['REDIS_PORT']) if port is None else int(port)
-        if password is None and os.environ.get('REDIS_PW') is None:
-            # check to see if default pw is loaded, but don't throw if None
-            return redis.StrictRedis(host=host, port=_port)
-        password = password or os.environ.get('REDIS_PW')
-        return redis.StrictRedis(host=host, password=password, port=_port)
+        if redis_conn is None:
+            # try to load from environment
+            # we don't condone passwords from envars, so unsecured connections only
+            host = os.environ.get('REDIS_ENDPOINT')
+            port = os.environ.get('REDIS_PORT')
+            return connect(host, port)
+        return connect(host=redis_conn.get('host'), password=redis_conn.get('password', default=None), port=redis_conn.get('port', default=6379))
     except Exception, e:
         raise e
+
+
+def connect(host, port, password=None):
+    if password is None:
+        return redis.StrictRedis(host=host, port=port)
+    else:
+        return redis.StrictRedis(host=host, port=port, password=password)
